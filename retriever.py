@@ -85,8 +85,10 @@ class UAVRetriever:
         results.sort(key=lambda x: x["score"], reverse=True)
 
         # Apply similarity threshold — reject chunks below relevance cutoff
-        # In-domain queries typically score 0.50+; off-topic queries score <0.40
-        SIMILARITY_THRESHOLD = 0.45
+        # In-domain queries typically score 0.50+; off-topic queries score <0.35
+        # 0.40 balances recall (catching legitimate UAV queries) vs precision
+        # (rejecting off-topic). Layer 2 in rag_engine.py catches weak answers.
+        SIMILARITY_THRESHOLD = 0.40
         filtered = [r for r in results[:k] if r["score"] >= SIMILARITY_THRESHOLD]
 
         if not filtered:
