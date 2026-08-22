@@ -54,7 +54,7 @@ class UAVRAGEngine:
             
         self.chat_client = self.model.get_chat_client()
 
-    def query(self, user_query, k=5):
+    def query(self, user_query, k=3):
         """
         Retrieves context and generates an answer using the local LLM.
         """
@@ -77,12 +77,12 @@ class UAVRAGEngine:
             context_str += f"--- END OF CONTEXT ---\n\n"
 
         # Step 3: Build prompt — use explicit markers for small model compliance
-        # Small models (0.5B) follow concrete templates better than abstract rules.
         system_prompt = (
             "You are a UAV technical assistant. "
-            "You MUST answer using ONLY the exact text from the CONTEXT section. "
-            "Do NOT add any information not found in the CONTEXT. "
-            "Always cite the source file as [Source: filename.md] for every fact you state. "
+            "Answer using ONLY the information in the CONTEXT section below. "
+            "Do NOT use any outside knowledge. "
+            "For every fact, cite the actual source filename from the context header, "
+            "for example: [Source: failsafe_protocols.md] or [Source: preflight_checklist.md]. "
             "If the CONTEXT does not contain the answer, respond with exactly: "
             "'I do not have sufficient field documentation to answer this question.'"
         )
@@ -90,7 +90,7 @@ class UAVRAGEngine:
         user_content = (
             f"CONTEXT:\n{context_str}\n"
             f"QUESTION: {user_query}\n\n"
-            f"ANSWER (cite [Source: filename.md] for every fact, use only the CONTEXT above):"
+            f"ANSWER (cite the actual source filename for every fact):"
         )
 
         messages = [
